@@ -22,10 +22,6 @@ public class ExampleResource {
     private static final String monthlyBranchQuery = "SELECT * FROM SummaryBranchMonthly;";
     private static final String quarterlyBranchQuery = "SELECT * FROM SummaryBranchQuarterly;";
     private static final String yearlyBranchQuery = "SELECT * FROM SummaryBranchYearly;";
-    private static final String dailySalesQuery = "SELECT * FROM SummaryBranchDaily;";
-    private static final String monthlySalesQuery = "SELECT * FROM SummaryBranchMonthly;";
-    private static final String quarterlySalesQuery = "SELECT * FROM SummaryBranchQuarterly;";
-    private static final String yearlySalesQuery = "SELECT * FROM SummaryBranchYearly;";
 
     @Inject
     @DataSource("warehouse")
@@ -46,11 +42,10 @@ public class ExampleResource {
     }
 
     private void collectData(String query) {
-        Connection cn = null;
-        try {
-            cn = dataSource.getConnection();
-            PreparedStatement ps = cn.prepareStatement(query);
-            ResultSet rs = ps.executeQuery();
+        try(Connection cn = dataSource.getConnection();
+            PreparedStatement ps = cn.prepareCall(query);
+            ResultSet rs = ps.executeQuery()) {
+
             while (rs.next()) {
                 Summary summary = new Summary();
 
@@ -70,18 +65,9 @@ public class ExampleResource {
 
                 repository.create(summary);
             }
-            rs.close();
-            ps.close();
+
         } catch (SQLException e) {
             e.printStackTrace();
-        } finally {
-            if (cn != null) {
-                try {
-                    cn.close();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
         }
     }
 }
