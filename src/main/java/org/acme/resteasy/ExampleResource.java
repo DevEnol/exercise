@@ -43,7 +43,7 @@ public class ExampleResource {
 
     private void collectData(String query) {
         try(Connection cn = dataSource.getConnection();
-            PreparedStatement ps = cn.prepareCall(query);
+            PreparedStatement ps = cn.prepareStatement(query);
             ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
